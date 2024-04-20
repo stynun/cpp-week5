@@ -14,7 +14,7 @@ int main() {
 
     game.update();
     game.draw();
-
+    
     // wait은 여기서만 호출되어야 한다.
     console::wait();
   }

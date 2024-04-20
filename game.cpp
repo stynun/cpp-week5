@@ -1,5 +1,6 @@
 #include "game.h"
 #include "console/console.h"
+#include <iostream>
 
 void Game::printLines() {
     std::string str_lines = std::to_string(left_lines);
@@ -7,13 +8,13 @@ void Game::printLines() {
     console::draw(0, BOARD_HEIGHT + 2, str_lines);
 }
 
-void Game::printPlaytime() {
+std::string Game::getPlaytime(int time) {
     int m, s, ss;
-    ss = playtime % 100;
-    playtime /= 100;
-    s = playtime % 60;
-    playtime /= 60;
-    m = playtime;
+    ss = time % 100;
+    time /= 100;
+    s = time % 60;
+    time /= 60;
+    m = time;
 
     std::string str_m = std::to_string(m);
     std::string str_s = std::to_string(s);
@@ -30,33 +31,49 @@ void Game::printPlaytime() {
     }
 
     std::string str_playtime = str_m + ":" + str_s + "." + str_ss; 
-    console::draw(BOARD_WIDTH / 2 - 3, BOARD_HEIGHT + 3, str_playtime);
+    return str_playtime;
 }
 
-void Game::draw() {
-    console::drawBox(0, 0, BOARD_WIDTH + 1, BOARD_HEIGHT + 1);
-    printLines();
-      
+void Game::printWin() {
+    console::clear();
+    draw();
+    console::draw(BOARD_WIDTH / 2 - 2, BOARD_HEIGHT / 2, "You Win");
+    console::draw(BOARD_WIDTH / 2 - 3, BOARD_HEIGHT / 2 + 1, getPlaytime(playtime));
+    console::wait();
+}
+
+void Game::subLines() {
+    left_lines--;
 }
 
 void Game::update() {
     playtime++;
     timer++;
-    printPlaytime();
+}
+
+void Game::draw() {
+    console::draw(BOARD_WIDTH / 2 - 3, BOARD_HEIGHT + 3, getPlaytime(playtime));
+    console::drawBox(0, 0, BOARD_WIDTH + 1, BOARD_HEIGHT + 1);
+    printLines();
+
     if (timer == DROP_DELAY) {
         timer = 0;
-
-        draw();
-    }
+    } 
 }
 
 bool Game::shouldExit() {
+    if (console::key(console::K_UP)) {
+        subLines();
+    }
     if (console::key(console::K_ESC)) {
             return true;
     }
-    else {
-        return false;
+    if (left_lines <= 0) {
+        printWin();
+        return true;
     }
+
+    return false;
 }
 
 Game::Game() {
