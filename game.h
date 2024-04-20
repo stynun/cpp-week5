@@ -18,11 +18,13 @@ private:
   int timer;
   int left_lines;
   int playtime;
+  int x, y;
 
   void printLines();
   std::string getPlaytime(int time);
   void printWin();
   void subLines();
+  void handleInput();
 
 public:
   // 게임의 한 프레임을 처리한다.

@@ -1,6 +1,9 @@
 #include "game.h"
+#include "tetromino.h"
 #include "console/console.h"
 #include <iostream>
+
+Tetromino I("I", 4, "XXXXOOOOXXXXXXXX");
 
 void Game::printLines() {
     std::string str_lines = std::to_string(left_lines);
@@ -46,18 +49,37 @@ void Game::subLines() {
     left_lines--;
 }
 
+void Game::handleInput() {
+    if (console::key(console::K_LEFT)) {
+        x--;
+    }
+    if (console::key(console::K_RIGHT)) {
+        x++;
+    }
+    if (console::key(console::K_UP)) {
+        y++;
+    }
+    if (console::key(console::K_DOWN)) {
+        y++;
+    }
+}
+
 void Game::update() {
     playtime++;
     timer++;
+    handleInput();
 }
 
 void Game::draw() {
     console::draw(BOARD_WIDTH / 2 - 3, BOARD_HEIGHT + 3, getPlaytime(playtime));
     console::drawBox(0, 0, BOARD_WIDTH + 1, BOARD_HEIGHT + 1);
     printLines();
+    std::cout << I.name() << x << y;
 
     if (timer == DROP_DELAY) {
         timer = 0;
+        y++;
+        I.drawAt(BLOCK_STRING, x, y);
     } 
 }
 
@@ -80,4 +102,9 @@ Game::Game() {
     timer = 0;
     left_lines = LINES;
     playtime = 0;
+    x = 5;
+    y = 1;
+
+
+    //Tetromino I("I", 4, "XXXXOOOOXXXXXXXX");
 }
