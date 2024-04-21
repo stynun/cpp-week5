@@ -20,6 +20,7 @@ private:
   int playtime;
   int x, y;
 
+
   void printLines();
   std::string getPlaytime(int time);
   void printWin();

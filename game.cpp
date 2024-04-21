@@ -4,6 +4,13 @@
 #include <iostream>
 
 Tetromino I("I", 4, "XXXXOOOOXXXXXXXX");
+Tetromino O("0", 2, "OOOO");
+Tetromino T("T", 3, "XOXOOOXXX");
+Tetromino S("S", 3, "XOOOOXXXX");
+Tetromino Z("Z", 3, "OOXXOOXXX");
+Tetromino J("J", 3, "OXXOOOXXX");
+Tetromino L("L", 3, "XXOOOOXXX");
+Tetromino currentTetromino = I;
 
 void Game::printLines() {
     std::string str_lines = std::to_string(left_lines);
@@ -62,25 +69,47 @@ void Game::handleInput() {
     if (console::key(console::K_DOWN)) {
         y++;
     }
+    if (console::key(console::K_Z)) {
+        currentTetromino = currentTetromino.rotatedCCW();
+        for (int x = 0; x < currentTetromino.size(); x++) {
+            for (int y = 0; y < currentTetromino.size(); y--) {
+                if (currentTetromino.check(x, y)) {
+                    std::cout << "O";
+                }
+                else {
+                    std::cout << "X";
+                }
+            }
+        }
+        std::cout << std::endl;
+    }
+    if (console::key(console::K_X)) {
+        currentTetromino = currentTetromino.rotatedCW();
+    }
 }
 
 void Game::update() {
     playtime++;
     timer++;
     handleInput();
-}
-
-void Game::draw() {
-    console::draw(BOARD_WIDTH / 2 - 3, BOARD_HEIGHT + 3, getPlaytime(playtime));
-    console::drawBox(0, 0, BOARD_WIDTH + 1, BOARD_HEIGHT + 1);
-    printLines();
-    std::cout << I.name() << x << y;
 
     if (timer == DROP_DELAY) {
         timer = 0;
         y++;
-        I.drawAt(BLOCK_STRING, x, y);
     } 
+}
+
+void Game::draw() {
+    console::drawBox(0, 0, BOARD_WIDTH + 1, BOARD_HEIGHT + 1);
+    console::draw(BOARD_WIDTH / 2 - 3, BOARD_HEIGHT + 3, getPlaytime(playtime));
+    printLines();
+
+    console::drawBox(BOARD_WIDTH + 3, 0, BOARD_WIDTH + 8, 5);
+    console::draw(BOARD_WIDTH + 4, 0, "Next");
+    console::drawBox(BOARD_WIDTH + 9, 0, BOARD_WIDTH + 14, 5);
+    console::draw(BOARD_WIDTH + 10, 0, "Hold");
+
+    currentTetromino.drawAt(BLOCK_STRING, x, y);
 }
 
 bool Game::shouldExit() {
@@ -99,12 +128,17 @@ bool Game::shouldExit() {
 }
 
 Game::Game() {
+    for (int i = 0; i < BOARD_HEIGHT; i++) {
+        for (int j = 0; j < BOARD_HEIGHT; j++) {
+            board_[i][j] = false;
+        }
+    }
+
     timer = 0;
     left_lines = LINES;
     playtime = 0;
     x = 5;
     y = 1;
 
-
-    //Tetromino I("I", 4, "XXXXOOOOXXXXXXXX");
+    currentTetromino = I;
 }
