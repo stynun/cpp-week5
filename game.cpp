@@ -57,19 +57,46 @@ void Game::printWin() {
     draw();
     console::draw(BOARD_WIDTH / 2 - 2, BOARD_HEIGHT / 2, "You Win");
     console::draw(BOARD_WIDTH / 2 - 3, BOARD_HEIGHT / 2 + 1, getPlaytime(playtime));
-    console::wait();
 }
 
-void Game::subLines() {
+bool Game::isFull() {
+    int tmp = 0;
+    for (int i = 0; i < BOARD_HEIGHT; i++) {
+        for (int j = 0; j < BOARD_WIDTH; j++) {
+            if (board_[j][i] == true) {
+                tmp++;
+            }
+            if (tmp == BOARD_WIDTH) {
+                full_line = j;
+                return true;
+            }
+        }
+        
+        tmp = 0;
+    }
+
+    return false;
+}
+
+void Game::clearLines() {
     left_lines--;
+    
+    for (int i = 0; i < BOARD_WIDTH; i++) {
+        board_[full_line][i] == false;
+    }
+
 }
 
 void Game::handleInput() {
     if (console::key(console::K_LEFT)) {
-        x--;
+        if (canMove()) {
+            x--;
+        }
     }
     if (console::key(console::K_RIGHT)) {
-        x++;
+        if (canMove()) {
+            x++;
+        }
     }
     if (console::key(console::K_UP)) {
         y = s_y;
@@ -173,6 +200,14 @@ void Game::setShadow() {
 }
 
 void Game::build() {
+    for (int i = 0; i < currentTetromino.size(); i++) {
+        for (int j = 0; j < currentTetromino.size(); j++) {
+            if (currentTetromino.check(i,j)) {
+                board_[x + j - 1][y + i - 1] = true;
+            }
+        }
+    }
+
     is_hold = false;
     x = 5;
     y = 1;
@@ -180,14 +215,6 @@ void Game::build() {
     hit_x_max = 0;
     s_x, s_y = 20;
 
-    int xx, yy = 0;
-    for (int i = x; i < currentTetromino.size() - 1; i++) {
-        for (int j = y; j < currentTetromino.size() - 1; j++) {
-            if (currentTetromino.check(xx++ % currentTetromino.size(), yy++ % currentTetromino.size())) {
-                board_[i][j] = true;
-            }
-        }
-    }
     currentTetromino = nextTetromino;
     makeNewTetromino(1);
 }
@@ -242,6 +269,17 @@ void Game::makeNewTetromino(int num) {
         }
     }
 
+bool Game::canMove() {
+    if (hit_x_max >= 10) {
+        return false;
+    }
+    if (hit_x_min <= 1) {
+        return false;
+    }
+
+    return true;
+}
+
 void Game::update() {
     playtime++;
     timer++;
@@ -251,7 +289,11 @@ void Game::update() {
     if (y == s_y) {
         build();
     }
-
+/*
+    if (isFull()) {
+        clearLines();
+    }
+*/
     if (timer == DROP_DELAY) {
         timer = 0;
         y++;
@@ -276,18 +318,16 @@ void Game::draw() {
         }
     }
 
-    currentTetromino.drawAt(BLOCK_STRING, x, y);
     currentTetromino.drawAt(SHADOW_STRING, s_x, s_y);
-    nextTetromino.drawAt(BLOCK_STRING, BOARD_WIDTH + 4, 1); // 다음 테트로미노
+    currentTetromino.drawAt(BLOCK_STRING, x, y);
+    
+    nextTetromino.drawAt(BLOCK_STRING, BOARD_WIDTH + 4, 1);
     if (!hold_empty) {
-        holdingTetromino.drawAt(BLOCK_STRING, BOARD_WIDTH + 10, 1); // 홀딩 테트로미노
+        holdingTetromino.drawAt(BLOCK_STRING, BOARD_WIDTH + 10, 1);
     }
 }
 
 bool Game::shouldExit() {
-    if (console::key(console::K_UP)) {
-        subLines();
-    }
     if (console::key(console::K_ESC)) {
             return true;
     }
@@ -307,7 +347,7 @@ Game::Game() {
             board_[i][j] = false;
         }
     }
-
+    /*
     for (int i = 0; i < BOARD_WIDTH; i++) {
         board_[i][BOARD_HEIGHT - 1] = true;
     }
@@ -315,7 +355,7 @@ Game::Game() {
         board_[i][BOARD_HEIGHT - 2] = true;
     }
     board_[4][BOARD_HEIGHT - 3] = true;
-
+*/
     timer = 0;
     left_lines = LINES;
     playtime = 0;
@@ -324,6 +364,7 @@ Game::Game() {
     hit_x_min = 0;
     hit_x_max = 0;
     s_x, s_y = 20;
+    full_line = 0;
 
     currentTetromino = J;
     nextTetromino = I;

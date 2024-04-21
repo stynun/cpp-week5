@@ -20,16 +20,19 @@ private:
   int playtime;
   int x, y, hit_x_min, hit_x_max, hit_y_min, hit_y_max;
   int s_x, s_y;
+  int full_line;
 
   void printLines();
   std::string getPlaytime(int time);
   void printWin();
-  void subLines();
+  bool isFull();
+  void clearLines();
   void handleInput();
   void hitbox();
   void setShadow();
   void build();
   void makeNewTetromino(int num);
+  bool canMove();
 
 public:
   // 게임의 한 프레임을 처리한다.
