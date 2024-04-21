@@ -56,8 +56,8 @@ Tetromino::Tetromino(std::string name, int size, std::string shape) {
 Tetromino Tetromino::rotatedCW() {
     std::string rotatedShape = "";
     
-    for (int x = 0; x < size_; x++) {
-        for (int y = size_ - 1; y >= 0; y--) {
+    for (int y = size_ - 1; y >= 0; y--) {
+        for (int x = 0; x < size_; x++) {
             if (check(x, y)) {
                 rotatedShape.append("O");
             }
@@ -73,8 +73,8 @@ Tetromino Tetromino::rotatedCW() {
 Tetromino Tetromino::rotatedCCW() {
     std::string rotatedShape = "";
     
-    for (int x = size_; x >= 0; x--) {
-        for (int y = size_ - 1; y >= 0; y--) {
+    for (int y = 0; y < size_; y++) {
+        for (int x = size_ - 1; x >= 0; x--) {
             if (check(x, y)) {
                 rotatedShape.append("O");
             }
@@ -83,7 +83,7 @@ Tetromino Tetromino::rotatedCCW() {
             }
         }
     }
-   
+
    return Tetromino(name_, size_, rotatedShape);
 }
 
@@ -93,7 +93,7 @@ void Tetromino::drawAt(std::string s, int x, int y) {
     for (int i = 0; i < size_; i++) {
         for (int j = 0; j < size_; j++) {
             if (shape_[i][j]) {
-                console::draw(x + i, y + j, s);
+                console::draw(x + j, y + i, s);
             }
         }
     }

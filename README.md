@@ -5,6 +5,7 @@
 ```
 git clone https://github.com/stynun/cpp-week5 tetris
 cd tetris
+git submodule update --init
 
 make #mingw32-make
 ./main.exe

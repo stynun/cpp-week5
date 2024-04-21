@@ -71,27 +71,65 @@ void Game::handleInput() {
     }
     if (console::key(console::K_Z)) {
         currentTetromino = currentTetromino.rotatedCCW();
-        for (int x = 0; x < currentTetromino.size(); x++) {
-            for (int y = 0; y < currentTetromino.size(); y--) {
-                if (currentTetromino.check(x, y)) {
-                    std::cout << "O";
-                }
-                else {
-                    std::cout << "X";
-                }
-            }
-        }
-        std::cout << std::endl;
     }
     if (console::key(console::K_X)) {
         currentTetromino = currentTetromino.rotatedCW();
     }
 }
 
+void Game::hitbox() {
+    int x_min = 10;
+    int x_max = 0;
+    for (int i = 0; i < currentTetromino.size(); i++) {
+        for (int j = 0; j < currentTetromino.size(); j++) {
+            if(currentTetromino.check(i, j)) {
+                if(j < x_min) {
+                    x_min = j;
+                }
+                break;
+            }
+        }
+    }
+    
+    for (int i = 0; i < currentTetromino.size(); i++) {
+        for (int j = currentTetromino.size(); j >= 0; j--) {
+            if(currentTetromino.check(i, j)) {
+                if(j > x_max) {
+                    x_max = j;
+                }
+                break;
+            }
+        }
+    }
+    
+    hit_min = x_min + x;
+    hit_max = x_max + x;
+
+    std::cout << hit_min << " " << hit_max << std::endl;
+}
+
+void Game::setShadow() {
+    s_x = x;
+
+    for (int i = hit_min; i <= hit_max; i++) {
+        for (int j = BOARD_HEIGHT - 1; j >= 0; j--) {
+            if (board_[i][j] == true) {
+                if (j < s_y) {
+                    s_y = j;
+                }
+            }
+        }
+    }
+
+    std::cout << s_x << " " << s_y << std::endl;
+}
+
 void Game::update() {
     playtime++;
     timer++;
     handleInput();
+    hitbox();
+    setShadow();
 
     if (timer == DROP_DELAY) {
         timer = 0;
@@ -108,6 +146,14 @@ void Game::draw() {
     console::draw(BOARD_WIDTH + 4, 0, "Next");
     console::drawBox(BOARD_WIDTH + 9, 0, BOARD_WIDTH + 14, 5);
     console::draw(BOARD_WIDTH + 10, 0, "Hold");
+
+    for (int i = 0; i < BOARD_WIDTH; i++) {
+        for (int j = 0; j < BOARD_HEIGHT; j++) {
+            if (board_[i][j] == true) {
+                console::draw(i + 1, j + 1, BLOCK_STRING);
+            }
+        }
+    }
 
     currentTetromino.drawAt(BLOCK_STRING, x, y);
 }
@@ -128,17 +174,29 @@ bool Game::shouldExit() {
 }
 
 Game::Game() {
-    for (int i = 0; i < BOARD_HEIGHT; i++) {
+    for (int i = 0; i < BOARD_WIDTH; i++) {
         for (int j = 0; j < BOARD_HEIGHT; j++) {
             board_[i][j] = false;
         }
     }
+
+    for (int i = 0; i < BOARD_WIDTH; i++) {
+        board_[i][BOARD_HEIGHT - 1] = true;
+    }
+    for (int i = 3; i < 6; i++) {
+        board_[i][BOARD_HEIGHT - 2] = true;
+    }
+    board_[4][BOARD_HEIGHT - 3] = true;
+
 
     timer = 0;
     left_lines = LINES;
     playtime = 0;
     x = 5;
     y = 1;
+    hit_min = 10;
+    hit_max = 0;
+    s_x, s_y = 20;
 
-    currentTetromino = I;
+    currentTetromino = J;
 }
